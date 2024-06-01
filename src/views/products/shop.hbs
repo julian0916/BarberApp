@@ -1,0 +1,58 @@
+<div class="container-shop" style="margin-top: 20px;">
+  <h1>Carrito de Compras</h1>
+
+  <div id="cart-items">
+    <!-- Aquí se mostrarán los productos agregados al carrito -->
+    {{#if product}}
+    <form action="/products/shop/{{product.id}}" method="POST">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Cantidad</th>
+            <th>Total</th>
+            <th>Imagen</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{product.name}}</td>
+            <td>$ {{product.price}}</td>
+            <td>
+              <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{product.stock}}" onchange="updateTotal({{product.price}})">
+            </td>
+            <td id="total">$ {{product.price}}</td>
+            <td>
+              <img src="/products/image/{{product.id}}" alt="{{product.name}}" width="100">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <input type="hidden" id="quantity-input" name="quantity" value="1">
+
+      <div id="payment-options">
+        <h2>Opciones de Pago</h2>
+        <button type="submit" class="option_button">Pagar en Efectivo</button>
+        <button type="submit" class="option_button">Pagar con Tarjeta</button>
+      </div>
+    </form>
+    {{else}}
+    <h2>Lo sentimos, no hay productos disponibles</h2>
+    {{/if}}
+  </div>
+
+  <div id="payment-result">
+    <!-- Aquí se mostrará el resultado del pago -->
+  </div>
+</div>
+
+<script>
+  function updateTotal(price) {
+    const quantity = document.getElementById('quantity').value;
+    const total = price * quantity;
+    document.getElementById('total').innerText = '$ ' + total.toFixed(2);
+    document.getElementById('quantity-input').value = quantity;
+  }
+</script>

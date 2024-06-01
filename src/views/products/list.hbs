@@ -1,0 +1,100 @@
+<div class="container mt-4">
+  {{#if user}}
+  {{#if (eq user.role "barber")}}
+  {{#each barbersList}}
+  {{#if this.products.length}}
+  <h3>{{this.name}}</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Nombre</th>
+        <th scope="col">Precio</th>
+        <th scope="col">Stock</th>
+        <th scope="col">Imagen</th>
+        <th scope="col">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each this.products}}
+      <tr>
+        <td>{{this.name}}</td>
+        <td>$ {{this.price}}</td>
+        <td>{{this.stock}} und.</td>
+        <td><img src="/products/image/{{this.id}}" alt="{{this.name}}" width="100" /></td>
+        <td>
+          <a href="/products/edit/{{this.id}}" class="btn btn-primary btn-sm">Editar</a>
+          <a href="/products/delete/{{this.id}}" class="btn btn-danger btn-sm">Eliminar</a>
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  {{else}}
+  <h3>{{this.name}} - No tiene productos</h3>
+  <p>No hay productos disponibles para este barbero.</p>
+  <a href="/products/add" class="btn btn-primary">Agregar Producto</a>
+  {{/if}}
+  {{/each}}
+  {{else}}
+  <h2>Listado de Barberos con Productos</h2>
+  <div class="form-group">
+    <label for="barber-select">Selecciona un barbero:</label>
+    <select class="form-control" id="barber-select">
+      {{#each barbersList}}
+      <option value="{{@index}}" {{#if @first}}selected{{/if}}>{{this.name}}</option>
+      {{/each}}
+    </select>
+  </div>
+  <div id="barbers-carousel" class="carousel slide">
+    <div class="carousel-inner" id="carousel-inner">
+      {{#each barbersList}}
+      <div class="carousel-item {{#if @first}}active{{/if}}">
+        <h3>{{this.name}}</h3>
+        {{#if this.products.length}}
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Precio</th>
+              <th scope="col">Stock</th>
+              <th scope="col">Imagen</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each this.products}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>$ {{this.price}}</td>
+              <td>{{this.stock}} und.</td>
+              <td><img src="/products/image/{{this.id}}" alt="{{this.name}}" width="100" /></td>
+              <td>
+                <a href="/products/shop/{{this.id}}" class="btn btn-primary btn-sm">Comprar</a>
+              </td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+        {{else}}
+        <p>No hay productos disponibles para comprar.</p>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  <script>
+    document.getElementById('barber-select').addEventListener('change', function () {
+      const selectedIndex = this.value;
+      const carouselItems = document.querySelectorAll('.carousel-item');
+      carouselItems.forEach((item, index) => {
+        if (index == selectedIndex) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    });
+  </script>
+  {{/if}}
+  {{/if}}
+</div>

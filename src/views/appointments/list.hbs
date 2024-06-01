@@ -1,0 +1,92 @@
+<div class="container mt-4">
+  <h2>Todas las Citas</h2>
+
+  {{#if user}}
+  {{!-- Barbero --}}
+  {{#if (eq user.role "barber")}}
+  {{#if appointments.length}}
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Cliente</th>
+        <th scope="col">Fecha</th>
+        <th scope="col">Hora</th>
+        <th scope="col">Descripción</th>
+        <th scope="col">Creado</th>
+        <th scope="col">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each appointments}}
+      <tr>
+        <td>{{client_name}}</td>
+        <td>{{formatDate date}}</td>
+        <td>{{time}}</td>
+        <td>{{description}}</td>
+        <td>{{timeago created_at}}</td>
+        <td>
+          <a href="/appointments/edit/{{id}}" class="btn btn-primary btn-sm">Editar</a>
+          <a href="/appointments/delete/{{id}}" class="btn btn-danger btn-sm">Eliminar</a>
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  <a href="/appointments/add" class="btn btn-primary m-4">
+    Agregar una cita
+  </a>
+  {{else}}
+  <div class="col-md-4 mx-auto">
+    <div class="card card-body text-center">
+      <p>No tienes ninguna cita.</p>
+      <a href="/appointments/add">Agrega una!</a>
+    </div>
+  </div>
+  {{/if}}
+  {{/if}}
+  {{!-- Cliente --}}
+  {{#if (eq user.role "client")}}
+  {{#if appointments.length}}
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Cliente</th>
+        <th scope="col">Barbero</th>
+        <th scope="col">Fecha</th>
+        <th scope="col">Hora</th>
+        <th scope="col">Descripción</th>
+        <th scope="col">Creado</th>
+        <th scope="col">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each appointments}}
+      <tr>
+        <td>{{client_name}}</td>
+        <td>{{barber_name}}</td>
+        <td>{{formatDate date}}</td>
+        <td>{{time}}</td>
+        <td>{{description}}</td>
+        <td>{{timeago created_at}}</td>
+        <td>
+          <a href="/appointments/edit/{{id}}" class="btn btn-primary btn-sm">Editar</a>
+          <a href="/appointments/delete/{{id}}" class="btn btn-danger btn-sm">Eliminar</a>
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  <a href="/appointments/book" class="btn btn-primary m-4">
+    Agregar una cita
+  </a>
+  {{else}}
+  <div class="col-md-4 mx-auto">
+    <div class="card card-body text-center">
+      <p>No tienes ninguna cita.</p>
+      <a href="/appointments/book">Agrega una!</a>
+    </div>
+  </div>
+  {{/if}}
+  {{/if}}
+  {{/if}}
+</div>

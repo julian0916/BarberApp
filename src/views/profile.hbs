@@ -1,0 +1,72 @@
+<section class="options_title">
+  <div class="optionals_title">
+    <h3>Bienvenido {{user.fullname}}</h3>
+  </div>
+  <div class="optionals_title">
+    <h4>{{user.username}}</h4>
+  </div>
+</section>
+{{#if (eq user.role "client")}}
+<section class="options">
+  <div class="optionals">
+    <img alt="Cita" class="option_imagen" src="/img/cita.jpg" />
+    <div class="option_content">
+      <h4 class="option_title">Agregar una cita</h4>
+      <p class="option_description">Agenda tus turnos.</p>
+      <button class="option_button" onclick="window.location.href='/appointments/book'">Agregar una cita</button>
+    </div>
+  </div>
+  <div class="optionals">
+    <img alt="Agenda" class="option_imagen" src="/img/calendario.jpg" />
+    <div class="option_content">
+      <h4 class="option_title">Mis citas</h4>
+      <p class="option_description">Revisa tu agenda.</p>
+      <button class="option_button" onclick="window.location.href='/appointments'">Administrar citas</button>
+    </div>
+  </div>
+  <div class="optionals">
+    <img alt="Productos" class="option_imagen" src="/img/productos.jpg" />
+    <div class="option_content">
+      <h4 class="option_title">Comprar productos</h4>
+      <p class="option_description">Consigue productos a un clic.</p>
+      <button class="option_button" onclick="window.location.href='/products/barbers-with-products'">Ver productos</button>
+    </div>
+  </div>
+</section>
+{{/if}}
+{{#if (eq user.role "barber")}}
+<section class="options">
+  <div class="optionals">
+    <img alt="Cita" class="option_imagen" src="/img/cita.jpg" />
+    <div class="option_content">
+      <h4 class="option_title">Agregar una cita</h4>
+      <p class="option_description">Agenda tus turnos.</p>
+      <button class="option_button" onclick="window.location.href='/appointments/add'">Agregar una cita</button>
+    </div>
+  </div>
+  <div class="optionals">
+    <img alt="Agenda" class="option_imagen" src="/img/calendario.jpg" />
+    <div class="option_content">
+      <h4 class="option_title">Mis citas</h4>
+      <p class="option_description">Revisa tu agenda.</p>
+      <button class="option_button" onclick="window.location.href='/appointments'">Administrar citas</button>
+    </div>
+  </div>
+  <div class="optionals">
+    <img alt="Agregar productos" class="option_imagen" src="/img/carrito.jpg" />
+    <div class="option_content">
+      <h4 class="option_title">Agregar un producto</h4>
+      <p class="option_description">Vende a un clic.</p>
+      <button class="option_button" onclick="window.location.href='/products/add'">Agregar un producto</button>
+    </div>
+  </div>
+  <div class="optionals">
+    <img alt="Productos" class="option_imagen" src="/img/productos.jpg" />
+    <div class="option_content">
+      <h4 class="option_title">Administrar mis productos</h4>
+      <p class="option_description">revisa tus productos.</p>
+      <button class="option_button" onclick="window.location.href='/products/barbers-with-products'">Mis productos</button>
+    </div>
+  </div>
+</section>
+{{/if}}

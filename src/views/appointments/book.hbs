@@ -1,0 +1,48 @@
+<div class="container p-4">
+  <div class="row">
+    <div class="col-md-6 mx-auto">
+      <div class="card">
+        <div class="card-body">
+          <h2>Hola, {{user.username}}</h2>
+          <form id="appointmentForm" action="/appointments/book" method="POST">
+            <div class="form-group">
+              <label for="barber">Seleccionar Barbero:</label>
+              <select id="barber" name="barber_id" class="form-control" required>
+                <option value="" disabled selected>Seleccione un barbero</option>
+                {{#each barbers}}
+                  <option value="{{this.id}}">{{this.fullname}}</option>
+                {{/each}}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="fecha">Fecha:</label>
+              <input type="date" id="fecha" name="fecha" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="hora">Hora:</label>
+              <input type="time" id="hora" name="hora" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="descripcion">Descripción:</label>
+              <select id="descripcion" name="descripcion" class="form-control" required>
+                <option value="Corte">Corte</option>
+                <option value="Barba">Barba</option>
+                <option value="Cejas">Cejas</option>
+                <option value="Corte + Barba">Corte + Barba</option>
+                <option value="Corte + Cejas">Corte + Cejas</option>
+                <option value="Cejas + Barba">Cejas + Barba</option>
+                <option value="Servicio Completo">Servicio Completo</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-success btn-block" id="submitButton">Reservar Cita</button>
+            </div>
+          </form>
+          <div id="error-message" class="alert alert-danger d-none" role="alert">
+            Por favor, selecciona un barbero antes de reservar la cita.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
