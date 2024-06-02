@@ -81,6 +81,45 @@ router.get("/shop/:id", isLoggedIn, async (req, res) => {
   }
 });
 
+// Ruta para enviar un producto al carrito
+router.post("/cart/add/:id", isLoggedIn, async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const quantity = parseInt(req.body.quantity) || 1;
+
+    // Obtener el producto de la base de datos
+    const product = await pool.query("SELECT * FROM products WHERE id = ?", [productId]);
+    if (!product || product.length === 0) {
+      req.flash("message", "El producto no existe");
+      return res.redirect("/products/barbers-with-products");
+    }
+
+    // Inicializar el carrito si no existe
+    if (!req.session.cart) {
+      req.session.cart = [];
+    }
+
+    // Verificar si el producto ya está en el carrito
+    const existingProductIndex = req.session.cart.findIndex(item => item.id === productId);
+
+    if (existingProductIndex !== -1) {
+      // Si el producto ya está en el carrito, incrementar la cantidad
+      req.session.cart[existingProductIndex].quantity += quantity;
+    } else {
+      // Si el producto no está en el carrito, agregarlo
+      req.session.cart.push({ id: productId, name: product[0].name, price: product[0].price, quantity });
+    }
+
+    req.flash("success", "Producto agregado al carrito");
+    res.redirect("/products/barbers-with-products");
+  } catch (error) {
+    console.error("Error al agregar el producto al carrito:", error);
+    req.flash("error", "Ocurrió un error al agregar el producto al carrito");
+    res.redirect("/products/barbers-with-products");
+  }
+});
+
+
 // Ruta para procesar la compra de un producto desde el carrito
 router.post("/shop/:id", isLoggedIn, async (req, res) => {
   try {
@@ -127,6 +166,30 @@ router.post("/shop/:id", isLoggedIn, async (req, res) => {
     res.status(500).send("Error interno del servidor");
   }
 });*/
+
+//Ruta para mostrar una imagen
+router.get("/image/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await pool.query("SELECT image FROM products WHERE id = ?", [id]);
+
+    if (product.length > 0 && product[0].image) {
+      const imageName = product[0].image; // Nombre del archivo de imagen
+      const imagePath = path.join(__dirname, "../uploads", imageName); // Ruta completa del archivo de imagen
+
+      if (fs.existsSync(imagePath)) {
+        res.sendFile(imagePath); // Enviar el archivo de imagen al cliente
+      } else {
+        res.status(404).send("Imagen no encontrada");
+      }
+    } else {
+      res.status(404).send("Imagen no encontrada");
+    }
+  } catch (error) {
+    console.error("Error al obtener la imagen del producto:", error);
+    res.status(500).send("Error interno del servidor");
+  }
+});
 
 // Ruta para mostrar el formulario de edición de un producto por su ID
 router.get("/edit/:id", isLoggedIn, async (req, res) => {
