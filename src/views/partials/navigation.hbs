@@ -40,7 +40,8 @@
               <div class="dropdown-menu" aria-labelledby="navbarDropdownCitas">
                 <a class="dropdown-item" href="/appointments">Administrar citas</a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/appointments/add">Agregar una cita</a>
+                <a class="dropdown-item" href="/appointments/add">Agregar una
+                  cita</a>
               </div>
             </li>
             <li class="nav-item dropdown">
@@ -57,9 +58,13 @@
               </a>
               <!-- Opciones del dropdown -->
               <div class="dropdown-menu" aria-labelledby="navbarDropdownCitas">
-                <a class="dropdown-item" href="/products/barbers-with-products">Mis productos</a>
+                <a
+                  class="dropdown-item"
+                  href="/products/barbers-with-products"
+                >Mis productos</a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/products/add">Agregar una producto</a>
+                <a class="dropdown-item" href="/products/add">Agregar una
+                  producto</a>
               </div>
             </li>
           {{/if}}
@@ -82,22 +87,45 @@
               <div class="dropdown-menu" aria-labelledby="navbarDropdownCitas">
                 <a class="dropdown-item" href="/appointments">Administrar citas</a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/appointments/book">Agregar una cita</a>
+                <a class="dropdown-item" href="/appointments/book">Agregar una
+                  cita</a>
               </div>
             </li>
-             <!-- Enlace para agregar un producto -->
-          <li class="nav-item">
-            <a class="nav-link" href="/products/barbers-with-products">Comprar productos</a>
-          </li>
+            <!-- Enlace para agregar un producto -->
+            <li class="nav-item">
+              <a class="nav-link" href="/products/barbers-with-products">Comprar
+                productos</a>
+            </li>
           {{/if}}
-          <!-- Enlace al perfil y al logout -->
-          <li class="nav-item">
-            <a class="nav-link" href="/profile">Perfil</a>
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="navbarDropdownCitas"
+              role="button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              Mi perfil
+            </a>
+            <!-- Opciones del dropdown -->
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownCitas">
+              <a class="dropdown-item" href="/profile">Perfil</a>
+              <div class="dropdown-divider"></div>
+              <a
+                class="dropdown-item"
+                href="#"
+                id="deleteProfile"
+                data-id="{{user.id}}"
+              >Eliminar mi perfil</a>
+            </div>
           </li>
+          <!-- Enlace al perfil y al logout -->
           <li class="nav-item">
             <a class="nav-link" href="/logout">Salir</a>
           </li>
-          
+
         {{else}}
           <!-- Enlace para iniciar sesión y registrarse -->
           <li class="nav-item">
@@ -111,3 +139,31 @@
     </div>
   </div>
 </nav>
+<!-- Incluir el script al final del body -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('deleteProfile').addEventListener('click', function(event) {
+      event.preventDefault();
+
+      const userId = this.getAttribute('data-id');
+
+      if (confirm('¿Estás seguro de que deseas eliminar tu perfil? Esta acción no se puede deshacer.')) {
+        fetch(`/user/${userId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+        .then(response => {
+          if (response.ok) {
+            alert('Perfil eliminado correctamente.');
+            window.location.href = '/logout';
+          } else {
+            alert('Hubo un error al intentar eliminar el perfil.');
+          }
+        })
+        .catch(error => console.error('Error al eliminar el perfil:', error));
+      }
+    });
+  });
+</script>
