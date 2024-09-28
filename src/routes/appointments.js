@@ -65,8 +65,8 @@ router.post("/book", isLoggedIn, async (req, res) => {
 
    // Verificar si ya existe una cita para la misma fecha y hora
    const existingAppointment = await pool.query(
-    "SELECT * FROM appointments WHERE date = ? AND time = ?",
-    [fecha, hora]
+    "SELECT * FROM appointments WHERE date = ? AND time = ? AND barber_id = ?",
+    [fecha, hora, barber_id]
   );
   if (existingAppointment.length > 0) {
     req.flash(
@@ -117,13 +117,13 @@ router.post("/add", isLoggedIn, async (req, res) => {
 
     // Verificar si ya existe una cita para la misma fecha y hora
     const existingAppointment = await pool.query(
-      "SELECT * FROM appointments WHERE date = ? AND time = ?",
-      [fecha, hora]
+      "SELECT * FROM appointments WHERE date = ? AND time = ? AND client_id = ?",
+      [fecha, hora, client_id]
     );
     if (existingAppointment.length > 0) {
       req.flash(
         "message",
-        "Ya hay una cita programada para esta fecha y hora."
+        "Ya hay una cita programada con el cliente para esta fecha y hora."
       );
       return res.redirect("/appointments/add");
     }
