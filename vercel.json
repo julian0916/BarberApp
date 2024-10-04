@@ -12,4 +12,17 @@
       "dest": "src/index.js"
     }
   ]
+  {
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; img-src 'self' https://barber-app-gamma.vercel.app;"
+        }
+      ]
+    }
+  ]
 }
+
