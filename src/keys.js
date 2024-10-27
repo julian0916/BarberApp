@@ -1,6 +1,6 @@
 module.exports = {
     database: {
-        host: '192.168.5.1:3306',
+        host: 'localhost',
         user: 'root',
         password: '12345678',
         database: 'barberia'
