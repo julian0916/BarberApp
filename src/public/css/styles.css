@@ -43,11 +43,11 @@ body {
 }
 
 .service-card:hover {
-  background-color: #f8f9fa; /* Cambia el color de fondo al pasar el cursor */
+  background-color: #f8f9fa; 
 }
 
 .service-card.selected {
-  background-color: #cce5ff; /* Cambia el color de fondo cuando está seleccionado */
+  background-color: #cce5ff; 
 }
 
 /*Menu de Opciones*/
@@ -67,6 +67,10 @@ body {
   margin-bottom: 2rem;
   margin-left: 10px;
   margin-right: 10px;
+}
+
+.optionals:hover {
+  transform:  translateY(-5px); 
 }
 
 .option_imagen {

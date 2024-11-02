@@ -118,7 +118,7 @@ router.post('/forgot-password', async (req, res) => {
       from: 'pruebasena0916@gmail.com',
       to: email,
       subject: 'Restablecimiento de Contraseña',
-      text: 'Para restablecer tu contraseña, haz clic en el siguiente enlace: http://localhost:3000/reset-password'
+      text: 'Para restablecer tu contraseña, haz clic en el siguiente enlace: http://localhost:4000/reset-password'
     };
 
     transporter.sendMail(mailOptions, (error, info) => {

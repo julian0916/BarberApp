@@ -6,15 +6,8 @@
       Barber App
     </a>
     <!-- Botón de alternancia para la vista de navegación en dispositivos móviles -->
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-toggle="collapse"
-      data-target="#navbarNav"
-      aria-controls="navbarNav"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <!-- Contenido de la barra de navegación -->
@@ -22,118 +15,91 @@
       <ul class="navbar-nav ml-auto">
         <!-- Sección de citas -->
         {{#if user}}
-          {{#if (eq user.role "barber")}}
-            <!-- Dropdown para el barbero -->
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link dropdown-toggle"
-                href="#"
-                id="navbarDropdownCitas"
-                role="button"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-              >
-                Citas
-              </a>
-              <!-- Opciones del dropdown -->
-              <div class="dropdown-menu" aria-labelledby="navbarDropdownCitas">
-                <a class="dropdown-item" href="/appointments">Administrar citas</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/appointments/add">Agregar una
-                  cita</a>
-              </div>
-            </li>
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link dropdown-toggle"
-                href="#"
-                id="navbarDropdownCitas"
-                role="button"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-              >
-                Productos
-              </a>
-              <!-- Opciones del dropdown -->
-              <div class="dropdown-menu" aria-labelledby="navbarDropdownCitas">
-                <a
-                  class="dropdown-item"
-                  href="/products/barbers-with-products"
-                >Mis productos</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/products/add">Agregar una
-                  producto</a>
-              </div>
-            </li>
-          {{/if}}
-          <!-- Sección de mis citas para el cliente -->
-          {{#if (eq user.role "client")}}
-            <!-- Dropdown para el cliente -->
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link dropdown-toggle"
-                href="#"
-                id="navbarDropdownCitas"
-                role="button"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-              >
-                Mis citas
-              </a>
-              <!-- Opciones del dropdown -->
-              <div class="dropdown-menu" aria-labelledby="navbarDropdownCitas">
-                <a class="dropdown-item" href="/appointments">Administrar citas</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/appointments/book">Agregar una
-                  cita</a>
-              </div>
-            </li>
-            <!-- Enlace para agregar un producto -->
-            <li class="nav-item">
-              <a class="nav-link" href="/products/barbers-with-products">Comprar
-                productos</a>
-            </li>
-          {{/if}}
-          <li class="nav-item dropdown">
-            <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              id="navbarDropdownCitas"
-              role="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              Mi perfil
-            </a>
-            <!-- Opciones del dropdown -->
-            <div class="dropdown-menu" aria-labelledby="navbarDropdownCitas">
-              <a class="dropdown-item" href="/profile">Perfil</a>
-              <div class="dropdown-divider"></div>
-              <a
-                class="dropdown-item"
-                href="#"
-                id="deleteProfile"
-                data-id="{{user.id}}"
-              >Eliminar mi perfil</a>
-            </div>
-          </li>
-          <!-- Enlace al perfil y al logout -->
-          <li class="nav-item">
-            <a class="nav-link" href="/logout">Salir</a>
-          </li>
+        {{#if (eq user.role "barber")}}
+        <!-- Dropdown para el barbero -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownCitas" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Citas
+          </a>
+          <!-- Opciones del dropdown -->
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownCitas">
+            <a class="dropdown-item" href="/appointments">Administrar citas</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/appointments/add">Agregar una
+              cita</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownCitas" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Productos
+          </a>
+          <!-- Opciones del dropdown -->
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownCitas">
+            <a class="dropdown-item" href="/products/barbers-with-products">Mis productos</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/products/add">Agregar una
+              producto</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/products/purchases">Mis ventas</a>
+          </div>
+        </li>
+        {{/if}}
+        <!-- Sección de mis citas para el cliente -->
+        {{#if (eq user.role "client")}}
+        <!-- Dropdown para el cliente -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownCitas" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Mis citas
+          </a>
+          <!-- Opciones del dropdown -->
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownCitas">
+            <a class="dropdown-item" href="/appointments">Administrar citas</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/appointments/book">Agregar una
+              cita</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownCitas" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Productos
+          </a>
+          <!-- Opciones del dropdown -->
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownCitas">
+            <a class="dropdown-item" href="/products/barbers-with-products">Comprar productos</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/products/purchases">Mis compras</a>
+          </div>
+        </li>
+        {{/if}}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownCitas" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Mi perfil
+          </a>
+          <!-- Opciones del dropdown -->
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownCitas">
+            <a class="dropdown-item" href="/profile">Perfil</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#" id="deleteProfile" data-id="{{user.id}}">Eliminar mi perfil</a>
+          </div>
+        </li>
+        <!-- Enlace al perfil y al logout -->
+        <li class="nav-item">
+          <a class="nav-link" href="/logout">Salir</a>
+        </li>
 
         {{else}}
-          <!-- Enlace para iniciar sesión y registrarse -->
-          <li class="nav-item">
-            <a class="nav-link" href="/signin">Iniciar sesión</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/signup">Registrarse</a>
-          </li>
+        <!-- Enlace para iniciar sesión y registrarse -->
+        <li class="nav-item">
+          <a class="nav-link" href="/signin">Iniciar sesión</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/signup">Registrarse</a>
+        </li>
         {{/if}}
       </ul>
     </div>
@@ -141,8 +107,8 @@
 </nav>
 <!-- Incluir el script al final del body -->
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('deleteProfile').addEventListener('click', function(event) {
+  document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('deleteProfile').addEventListener('click', function (event) {
       event.preventDefault();
 
       const userId = this.getAttribute('data-id');
@@ -154,15 +120,15 @@
             'Content-Type': 'application/json',
           }
         })
-        .then(response => {
-          if (response.ok) {
-            alert('Perfil eliminado correctamente.');
-            window.location.href = '/logout';
-          } else {
-            alert('Hubo un error al intentar eliminar el perfil.');
-          }
-        })
-        .catch(error => console.error('Error al eliminar el perfil:', error));
+          .then(response => {
+            if (response.ok) {
+              alert('Perfil eliminado correctamente.');
+              window.location.href = '/logout';
+            } else {
+              alert('Hubo un error al intentar eliminar el perfil.');
+            }
+          })
+          .catch(error => console.error('Error al eliminar el perfil:', error));
       }
     });
   });

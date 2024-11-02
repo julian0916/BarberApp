@@ -1,0 +1,82 @@
+<div class="container mt-4">
+  {{#if user}}
+  {{!-- Barbero --}}
+  {{#if (eq user.role "barber")}}
+  <h1>Ventas recientes</h1>
+  {{#if purchases.length}}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Cliente</th>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Total</th>
+        <th>Fecha de compra</th>
+        <th>Tipo de pago</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each purchases}}
+      <tr>
+        <td>{{this.client_name}}</td>
+        <td>{{this.product_name}}</td>
+        <td>{{this.quantity}}</td>
+        <td>{{this.product_price}}</td>
+        <td>{{formatDate this.purchase_date}}</td>
+        <td>{{this.payment_method}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  {{else}}
+  <div class="col-md-4 mx-auto">
+    <div class="card card-body text-center">
+      <p>No tienes ninguna venta.</p>
+    </div>
+  </div>
+  {{/if}}
+  {{/if}}
+  {{!-- Cliente --}}
+  {{#if (eq user.role "client")}}
+  <h1>Compras recientes</h1>
+  {{#if purchases.length}}
+  
+ <table class="table">
+    <thead>
+      <tr>
+        <th>Cliente</th>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Total</th>
+        <th>Fecha de compra</th>
+        <th>Tipo de pago</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each purchases}}
+      <tr>
+        <td>{{this.client_name}}</td>
+        <td>{{this.product_name}}</td>
+        <td>{{this.quantity}}</td>
+        <td>{{this.product_price}}</td>
+        <td>{{formatDate this.purchase_date}}</td>
+        <td>{{this.payment_method}}</td>
+         <td>
+          <a href="/products/delete-purchase/{{purchases_id}}" class="btn btn-danger btn-sm">Cancelar</a>
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  {{else}}
+  <div class="col-md-4 mx-auto">
+    <div class="card card-body text-center">
+      <p>No tienes ninguna compra.</p>
+      <a href="/products/barbers-with-products">Agrega una!</a>
+    </div>
+  </div>
+  {{/if}}
+  {{/if}}
+  {{/if}}
+</div>

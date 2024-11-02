@@ -4,6 +4,8 @@ const multer = require("multer");
 const path = require("path");
 const pool = require("../database");
 const fs = require("fs");
+const PDFDocument = require("pdfkit");
+const { promisify } = require('util');
 const { isLoggedIn } = require("../lib/auth");
 
 // Configurar multer para guardar archivos en la carpeta 'uploads'
@@ -119,13 +121,15 @@ router.post("/cart/add/:id", isLoggedIn, async (req, res) => {
   }
 });
 
-
 // Ruta para procesar la compra de un producto desde el carrito
 router.post("/shop/:id", isLoggedIn, async (req, res) => {
   try {
     const productId = req.params.id;
-    const quantity = parseInt(req.body.quantity, 10) || 1; // Obtener la cantidad seleccionada
+    const quantity = parseInt(req.body.quantity, 10) || 1;
     const clientUserId = req.user.id;
+    const paymentMethod = req.body.paymentMethod;
+    const now = new Date();
+    const formattedNow = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
 
     // Obtener el producto de la base de datos
     const product = await pool.query("SELECT * FROM products WHERE id = ?", [productId]);
@@ -134,38 +138,48 @@ router.post("/shop/:id", isLoggedIn, async (req, res) => {
       return res.redirect("/products/barbers-with-products");
     }
 
-    // Verificar si hay suficiente stock
-    if (product[0].stock < quantity) {
-      req.flash("message", "El producto no tiene suficiente stock");
-      return res.redirect("/products/barbers-with-products");
-    }
-
     // Reducir el stock del producto
     await pool.query("UPDATE products SET stock = stock - ? WHERE id = ?", [quantity, productId]);
 
-    // Aquí podrías implementar la lógica para procesar el pago si es necesario
+    // Insertar la compra en la tabla `purchases`
+    const result = await pool.query(
+      "INSERT INTO purchases (product_id, client_id, barber_id, quantity, payment_method) VALUES (?, ?, ?, ?, ?)",
+      [productId, clientUserId, product[0].barber_id, quantity, paymentMethod]
+    );
 
-    req.flash("success", "¡Compra exitosa!");
-    res.redirect("/products/barbers-with-products");
+    
+    // Obtener el ID de compra y verificar
+    const purchaseId = result.insertId;
+    if (!purchaseId) {
+      throw new Error("No se pudo obtener el ID de la compra.");
+    }
+
+    req.flash("success", "Compra realizada con éxito");
+    // Generar el PDF
+    const doc = new PDFDocument();
+    const pdfPath = path.join(__dirname, '..', 'invoices', `factura-${purchaseId}.pdf`);
+    const writeStream = fs.createWriteStream(pdfPath);
+    doc.pipe(writeStream);
+
+    doc.fontSize(25).text('Factura de Compra', { align: 'center' });
+    doc.text(`ID de compra: ${purchaseId}`);
+    doc.text(`Producto: ${product[0].name}`);
+    doc.text(`Cantidad: ${quantity}`);
+    doc.text(`Precio total: $ ${product[0].price * quantity}`);
+    doc.text(`Fecha de compra: ${formattedNow}`);
+    doc.end();
+
+    await promisify(writeStream.on.bind(writeStream))('finish');
+
+    // Devuelve una respuesta JSON con una URL accesible
+    res.json({ pdfUrl: `/invoices/factura-${purchaseId}.pdf` });
+
   } catch (error) {
     console.error("Error al procesar la compra del producto:", error);
     req.flash("message", "Ocurrió un error al procesar la compra del producto");
     res.redirect("/products/barbers-with-products");
   }
 });
-
-
-//Obtener los detalles de un producto
-/*router.get("/:id", isLoggedIn, async (req, res) => {
- const { id } = req.params;
- try {
-    const product = await pool.query("SELECT * FROM products WHERE id = ?", [id]);
-    res.render("products/detail", { product });
-  } catch (error) {
-    console.error("Error al obtener los detalles del producto:", error);
-    res.status(500).send("Error interno del servidor");
-  }
-});*/
 
 //Ruta para mostrar una imagen
 router.get("/image/:id", async (req, res) => {
@@ -262,7 +276,7 @@ router.post(
   }
 );
 
-// Ruta para eliminar un product
+// Ruta para eliminar un producto
 router.get("/delete/:id", isLoggedIn, async (req, res) => {
   const { id } = req.params;
   await pool.query("DELETE FROM products WHERE ID = ?", [id]);
@@ -328,6 +342,78 @@ router.get("/barbers-with-products", isLoggedIn, async (req, res) => {
   }
 });
 
-// Otras rutas y controladores relacionados con la edición, eliminación, etc., de productos...
+// Ruta para mostrar los productos comprados del barbero actual
+router.get("/purchases", isLoggedIn, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    // Define el filtro de usuario basado en el rol
+    const filterCondition = userRole === 'barber'
+      ? "purchases.barber_id = ?"
+      : "purchases.client_id = ?";
+
+    const purchases = await pool.query(
+      `
+      SELECT 
+         products.name AS product_name,        
+         products.price AS product_price,      
+         purchases.quantity,                    
+         client.fullname AS client_name,      
+         barber.fullname AS barber_name,        
+         purchases.purchase_date,
+         purchases.payment_method,
+         purchases.id AS purchases_id           
+      FROM 
+         purchases
+      INNER JOIN 
+          products ON purchases.product_id = products.id
+      INNER JOIN 
+          users AS client ON purchases.client_id = client.id 
+      INNER JOIN 
+          users AS barber ON purchases.barber_id = barber.id       
+      WHERE 
+          ${filterCondition}                       
+      ORDER BY 
+        purchases.purchase_date DESC;
+      `,
+      [userId]
+    );
+
+    res.render("products/purchases", { purchases });
+  } catch (error) {
+    console.error("Error al obtener los productos comprados:", error);
+    res.status(500).send("Error interno del servidor");
+  }
+});
+
+// Ruta para eliminar una compra
+router.get("/delete-purchase/:id", isLoggedIn, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Obtener la información de la compra antes de eliminarla
+    const [purchase] = await pool.query("SELECT product_id, quantity FROM purchases WHERE id = ?", [id]);
+
+    if (purchase) {
+      const { product_id: productId, quantity } = purchase;
+
+      // Devolver el stock al producto
+      await pool.query("UPDATE products SET stock = stock + ? WHERE id = ?", [quantity, productId]);
+
+      // Eliminar la compra
+      await pool.query("DELETE FROM purchases WHERE id = ?", [id]);
+
+      req.flash("success", "Compra cancelada con exito");
+    } else {
+      req.flash("message", "La compra no existe o ya ha sido eliminada");
+    }
+  } catch (error) {
+    console.error("Error al cancelar la compra:", error);
+    req.flash("message", "Hubo un problema al cancelar la compra");
+  }
+
+  res.redirect("/products/purchases");
+});
 
 module.exports = router;

@@ -68,6 +68,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 //Uploads folder
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Invoices folder
+app.use('/invoices', express.static(path.join(__dirname, 'invoices')));
+
 // Starting
 app.listen(app.get('port'), () => {
   console.log('Server is in port', app.get('port'));

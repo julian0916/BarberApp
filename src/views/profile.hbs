@@ -32,6 +32,14 @@
       <button class="option_button" onclick="window.location.href='/products/barbers-with-products'">Ver productos</button>
     </div>
   </div>
+  <div class="optionals">
+    <img alt="Ventas" class="option_imagen" src="/img/ventas.jpg" />
+    <div class="option_content">
+      <h4 class="option_title">Mis compras</h4>
+      <p class="option_description">revisa tus productos comprados.</p>
+      <button class="option_button" onclick="window.location.href='/products/purchases'">Ver compras</button>
+    </div>
+  </div>
 </section>
 {{/if}}
 {{#if (eq user.role "barber")}}
@@ -66,6 +74,14 @@
       <h4 class="option_title">Administrar mis productos</h4>
       <p class="option_description">revisa tus productos.</p>
       <button class="option_button" onclick="window.location.href='/products/barbers-with-products'">Mis productos</button>
+    </div>
+  </div>
+  <div class="optionals">
+    <img alt="Ventas" class="option_imagen" src="/img/ventas.jpg" />
+    <div class="option_content">
+      <h4 class="option_title">Administrar mis ventas</h4>
+      <p class="option_description">revisa tus productos vendidos.</p>
+      <button class="option_button" onclick="window.location.href='/products/purchases'">Mis ventas</button>
     </div>
   </div>
 </section>

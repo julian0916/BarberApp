@@ -27,3 +27,13 @@
     </div>
 </div>
 {{/if}}
+<script>
+  // Espera 5 segundos (5000 ms) y luego cierra las alertas automáticamente
+  setTimeout(() => {
+    const alertElements = document.querySelectorAll('.alert');
+    alertElements.forEach(alert => {
+      alert.classList.remove('show');
+      alert.classList.add('fade');  // Asegura que se desvanezca visualmente
+    });
+  }, 10000);
+</script>
