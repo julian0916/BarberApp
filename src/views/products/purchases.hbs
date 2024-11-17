@@ -1,8 +1,39 @@
 <div class="container mt-4">
   {{#if user}}
-  {{!-- Barbero --}}
+  
+  <!-- Barbero -->
   {{#if (eq user.role "barber")}}
   <h1>Ventas recientes</h1>
+
+  <!-- Formulario para filtrar por fechas -->
+  <form class="mb-4" action="/products/sales-filter" method="get">
+    <div class="row">
+      <div class="col-md-4">
+        <label for="startDate">Fecha de inicio:</label>
+        <input type="date" id="startDate" name="startDate" class="form-control" value="{{startDate}}" required>
+      </div>
+      <div class="col-md-4">
+        <label for="endDate">Fecha de fin:</label>
+        <input type="date" id="endDate" name="endDate" class="form-control" value="{{endDate}}" required>
+      </div>
+      <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Si hay ventas filtradas, mostrar resultados -->
+  {{#if totalSales}}
+   <div class="card mt-4">
+    <div class="card-body">
+      <h4 class="card-title">Resumen de ventas</h4>
+      <p><strong>Total de ventas:</strong> {{totalSales}}</p>
+      <p><strong>Total de ingresos:</strong> ${{totalRevenue}}</p>
+    </div>
+  </div>
+  {{/if}}
+
+  <!-- Mostrar las ventas filtradas -->
   {{#if purchases.length}}
   <table class="table">
     <thead>
@@ -35,13 +66,15 @@
     </div>
   </div>
   {{/if}}
+
   {{/if}}
-  {{!-- Cliente --}}
+
+  <!-- Cliente -->
   {{#if (eq user.role "client")}}
   <h1>Compras recientes</h1>
+
   {{#if purchases.length}}
-  
- <table class="table">
+  <table class="table">
     <thead>
       <tr>
         <th>Cliente</th>
@@ -50,6 +83,7 @@
         <th>Total</th>
         <th>Fecha de compra</th>
         <th>Tipo de pago</th>
+        <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
@@ -61,14 +95,13 @@
         <td>{{this.product_price}}</td>
         <td>{{formatDate this.purchase_date}}</td>
         <td>{{this.payment_method}}</td>
-         <td>
-          <a href="/products/delete-purchase/{{purchases_id}}" class="btn btn-danger btn-sm">Cancelar</a>
+        <td>
+          <a href="/products/delete-purchase/{{this.purchase_id}}" class="btn btn-danger btn-sm">Cancelar</a>
         </td>
       </tr>
       {{/each}}
     </tbody>
   </table>
-
   {{else}}
   <div class="col-md-4 mx-auto">
     <div class="card card-body text-center">
@@ -78,5 +111,6 @@
   </div>
   {{/if}}
   {{/if}}
+
   {{/if}}
 </div>

@@ -121,7 +121,6 @@ router.post("/cart/add/:id", isLoggedIn, async (req, res) => {
   }
 });
 
-// Ruta para procesar la compra de un producto desde el carrito
 router.post("/shop/:id", isLoggedIn, async (req, res) => {
   try {
     const productId = req.params.id;
@@ -132,9 +131,15 @@ router.post("/shop/:id", isLoggedIn, async (req, res) => {
     const formattedNow = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
 
     // Obtener el producto de la base de datos
-    const product = await pool.query("SELECT * FROM products WHERE id = ?", [productId]);
-    if (!product || product.length === 0) {
+    const [product] = await pool.query("SELECT * FROM products WHERE id = ?", [productId]);
+    if (!product) {
       req.flash("message", "El producto no existe");
+      return res.redirect("/products/barbers-with-products");
+    }
+
+    // Verificar stock
+    if (product.stock < quantity) {
+      req.flash("message", "No hay suficiente stock disponible");
       return res.redirect("/products/barbers-with-products");
     }
 
@@ -144,40 +149,118 @@ router.post("/shop/:id", isLoggedIn, async (req, res) => {
     // Insertar la compra en la tabla `purchases`
     const result = await pool.query(
       "INSERT INTO purchases (product_id, client_id, barber_id, quantity, payment_method) VALUES (?, ?, ?, ?, ?)",
-      [productId, clientUserId, product[0].barber_id, quantity, paymentMethod]
+      [productId, clientUserId, product.barber_id, quantity, paymentMethod]
     );
 
-    
     // Obtener el ID de compra y verificar
     const purchaseId = result.insertId;
     if (!purchaseId) {
       throw new Error("No se pudo obtener el ID de la compra.");
     }
 
-    req.flash("success", "Compra realizada con éxito");
-    // Generar el PDF
+    // Generar el PDF de factura
+    const PDFDocument = require("pdfkit");
+    const fs = require("fs");
+    const path = require("path");
+
     const doc = new PDFDocument();
-    const pdfPath = path.join(__dirname, '..', 'invoices', `factura-${purchaseId}.pdf`);
+    const pdfPath = path.join(__dirname, "..", "invoices", `factura-${purchaseId}.pdf`);
     const writeStream = fs.createWriteStream(pdfPath);
     doc.pipe(writeStream);
 
-    doc.fontSize(25).text('Factura de Compra', { align: 'center' });
-    doc.text(`ID de compra: ${purchaseId}`);
-    doc.text(`Producto: ${product[0].name}`);
-    doc.text(`Cantidad: ${quantity}`);
-    doc.text(`Precio total: $ ${product[0].price * quantity}`);
-    doc.text(`Fecha de compra: ${formattedNow}`);
+    // Encabezado
+    doc.fontSize(10).text("Barber App", 200, 60);
+    doc.text("Dirección: calle 123 avenida 45", 200, 75);
+    doc.text("Teléfono: +57 234 567 890", 200, 90);
+    doc.text("Email: contacto@empresa.com", 200, 105);
+    doc.fontSize(18).text("Factura", 50, 150, { align: "center" });
+
+    // Detalles del cliente y compra
+    doc.fontSize(12).text(`Cliente: ${req.user.fullname}`, 50, 200);
+    doc.text(`Fecha: ${formattedNow}`, 50, 215);
+    doc.text(`ID de compra: ${purchaseId}`, 50, 230);
+
+    // Tabla de productos
+    doc.text("Producto", 60, 270);
+    doc.text("Cantidad", 260, 270);
+    doc.text("Precio Unitario", 360, 270);
+    doc.text("Total", 460, 270);
+    doc.moveTo(50, 290).lineTo(550, 290).stroke();
+
+    doc.text(product.name, 60, 300);
+    doc.text(quantity, 260, 300);
+    doc.text(`$${product.price}`, 360, 300);
+    doc.text(`$${product.price * quantity}`, 460, 300);
+
+    // Total
+    doc.fontSize(16).fillColor("blue").text(`Total: $${product.price * quantity}`, 50, 350, { align: "right" });
+
+    // Pie de página
+    doc.fontSize(10).fillColor("gray").text("Gracias por su compra.", 50, 700, { align: "center" });
+
     doc.end();
+    await new Promise((resolve, reject) => writeStream.on("finish", resolve).on("error", reject));
 
-    await promisify(writeStream.on.bind(writeStream))('finish');
-
-    // Devuelve una respuesta JSON con una URL accesible
+    // Respuesta con URL del PDF
     res.json({ pdfUrl: `/invoices/factura-${purchaseId}.pdf` });
 
   } catch (error) {
     console.error("Error al procesar la compra del producto:", error);
     req.flash("message", "Ocurrió un error al procesar la compra del producto");
     res.redirect("/products/barbers-with-products");
+  }
+});
+
+router.get("/sales-filter", isLoggedIn, async (req, res) => {
+  try {
+    let { startDate, endDate } = req.query;  
+    const barberId = req.user.barber_id;  
+
+    if (!startDate || !endDate || !barberId) {
+      req.flash("message", "Por favor, proporciona ambas fechas y asegúrate de estar autenticado.");
+      return res.redirect("/products/purchases");
+    }
+
+    startDate = startDate + " 00:00:00"; 
+    endDate = endDate + " 23:59:59"; 
+
+    let start = new Date(startDate);
+    let end = new Date(endDate);
+
+    const formatDateForSQL = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    };
+
+    const formattedStartDate = formatDateForSQL(start);
+    const formattedEndDate = formatDateForSQL(end);
+
+    const query = `
+      SELECT COUNT(*) AS total_sales, SUM(purchases.quantity * products.price) AS total_revenue 
+      FROM purchases 
+      INNER JOIN products ON purchases.product_id = products.id
+      WHERE purchases.purchase_date BETWEEN ? AND ?
+      AND purchases.barber_id = ?  -- Filtro por el barber_id
+    `;
+    
+    const result = await pool.query(query, [formattedStartDate, formattedEndDate, barberId]);
+      const totalSales = result[0].total_sales || 0;
+      const totalRevenue = result[0].total_revenue || 0;
+      res.render("products/purchases", {
+        totalSales,
+        totalRevenue,
+        startDate,
+        endDate,
+      });
+  } catch (error) {
+    console.error("Error al filtrar ventas:", error);
+    req.flash("message", "Ocurrió un error al filtrar las ventas.");
+    res.redirect("/products/purchases");
   }
 });
 
@@ -231,39 +314,34 @@ router.post(
   upload.single("image"),
   async (req, res) => {
     try {
-      const { name, price, stock } = req.body; // Obtener los nuevos datos del producto desde el formulario
-      const productId = req.params.id; // ID del producto que se va a editar
-      let imageUrl = ""; // Variable para almacenar la nueva ruta de la imagen
+      const { name, price, stock } = req.body; 
+      const productId = req.params.id; 
+      let imageUrl = ""; 
 
-      // Verificar si se ha subido una nueva imagen
       if (req.file) {
-        imageUrl = req.file.filename; // Si se subió una imagen, obtener la nueva ruta de la imagen
+        imageUrl = req.file.filename; 
       }
 
-      // Consultar la base de datos para obtener la imagen actual del producto
       const product = await pool.query(
         "SELECT image FROM products WHERE id = ?",
         [productId]
       );
       const currentImage = product[0].image;
 
-      // Verificar si se ha subido una nueva imagen y actualizar la ruta de la imagen en la base de datos
       if (imageUrl) {
         await pool.query(
           "UPDATE products SET name = ?, price = ?, stock = ?, image = ? WHERE id = ?",
           [name, price, stock, imageUrl, productId]
         );
       } else {
-        // Si no se subió una nueva imagen, mantener la imagen actual en la base de datos
         await pool.query(
           "UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?",
           [name, price, stock, productId]
         );
       }
 
-      // Si se subió una nueva imagen, eliminar la imagen anterior
       if (imageUrl && currentImage) {
-        fs.unlinkSync(path.join(__dirname, "../uploads", currentImage)); // Eliminar la imagen anterior
+        fs.unlinkSync(path.join(__dirname, "../uploads", currentImage)); 
       }
 
       req.flash("success", "Producto actualizado con éxito");
