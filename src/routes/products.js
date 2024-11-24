@@ -253,7 +253,7 @@ router.get("/sales-filter", isLoggedIn, async (req, res) => {
     const result = await pool.query(query, [formattedStartDate, formattedEndDate, barberId]);
       const totalSales = result[0].total_sales || 0;
       const totalRevenue = result[0].total_revenue || 0;
-      res.render("products/purchases", {
+      res.render("products/sales-filter", {
         totalSales,
         totalRevenue,
         startDate,
@@ -433,6 +433,14 @@ router.get("/purchases", isLoggedIn, async (req, res) => {
       ? "purchases.barber_id = ?"
       : "purchases.client_id = ?";
 
+    // Definir la cantidad de elementos por página
+    const ITEMS_PER_PAGE = 25;
+
+    // Obtener el número de página desde los parámetros de consulta, default es 1
+    const page = parseInt(req.query.page) || 1;
+    const offset = (page - 1) * ITEMS_PER_PAGE;
+
+    // Obtener las compras con el paginado
     const purchases = await pool.query(
       `
       SELECT 
@@ -455,12 +463,30 @@ router.get("/purchases", isLoggedIn, async (req, res) => {
       WHERE 
           ${filterCondition}                       
       ORDER BY 
-        purchases.purchase_date DESC;
+        purchases.purchase_date DESC
+      LIMIT ? OFFSET ?;
+      `,
+      [userId, ITEMS_PER_PAGE, offset]
+    );
+
+    // Obtener el número total de compras para calcular las páginas
+    const totalPurchases = await pool.query(
+      `
+      SELECT COUNT(*) AS total
+      FROM purchases
+      WHERE ${filterCondition};
       `,
       [userId]
     );
 
-    res.render("products/purchases", { purchases });
+    const totalPages = Math.ceil(totalPurchases[0].total / ITEMS_PER_PAGE);
+
+    // Pasar los datos al template (productos y paginación)
+    res.render("products/purchases", { 
+      purchases, 
+      currentPage: page,
+      totalPages
+    });
   } catch (error) {
     console.error("Error al obtener los productos comprados:", error);
     res.status(500).send("Error interno del servidor");

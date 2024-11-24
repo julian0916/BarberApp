@@ -34,4 +34,29 @@ Handlebars.registerHelper('eq', function (a, b, options) {
     return a === b;
 });
 
+// Helper para comparar si un valor es mayor que otro
+Handlebars.registerHelper('gt', function (a, b) {
+    return a > b;
+});
+
+// Helper para comparar si un valor es menor que otro
+Handlebars.registerHelper('lt', function (a, b) {
+    return a < b;
+});
+
+// Helper para calcular el valor anterior en la paginación
+Handlebars.registerHelper('dec', function (value) {
+    return value - 1;
+});
+
+// Helper para calcular el valor siguiente en la paginación
+Handlebars.registerHelper('inc', function (value) {
+    return value + 1;
+});
+
+// Helper para calcular el total de páginas
+Handlebars.registerHelper('totalPages', function (totalItems, itemsPerPage) {
+    return Math.ceil(totalItems / itemsPerPage);
+});
+
 module.exports = helpers;
