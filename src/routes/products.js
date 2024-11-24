@@ -121,6 +121,7 @@ router.post("/cart/add/:id", isLoggedIn, async (req, res) => {
   }
 });
 
+//Ruta para comprar un producto
 router.post("/shop/:id", isLoggedIn, async (req, res) => {
   try {
     const productId = req.params.id;
@@ -211,6 +212,7 @@ router.post("/shop/:id", isLoggedIn, async (req, res) => {
   }
 });
 
+//Ruta para filtrar productos por fecha
 router.get("/sales-filter", isLoggedIn, async (req, res) => {
   try {
     let { startDate, endDate } = req.query;  

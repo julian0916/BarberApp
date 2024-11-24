@@ -73,7 +73,7 @@ router.post("/book", isLoggedIn, async (req, res) => {
       "message",
       "Ya hay una cita programada para esta fecha y hora."
     );
-    return res.redirect("/appointments/add");
+    return res.redirect("/appointments/book");
   }
 
   // Verificar el rol del usuario que está reservando la cita
